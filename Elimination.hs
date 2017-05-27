@@ -17,13 +17,18 @@ buildIntervals lx =
       negInf = Range NInf (Var $ head vars)
       pInf = Range (Var $ last vars) Inf in
    (negInf:(middleIntervals vars)) ++ [pInf]
-   
+
+buildSigns :: [LinearExpr] -> [[Sign]]
+buildSigns es = []
+
+flipRowsAndCols :: [[a]] -> [[a]]
+flipRowsAndCols as =
+  if (length $ head as) == 0 then replicate (length as) [] else []
 
 tableForRootOrder :: Order LinearExpr -> SignTable
 tableForRootOrder order =
   let es = extractElems order in
-   mkTable es (buildIntervals es) []
-
+   mkTable es (buildIntervals es) (flipRowsAndCols $ buildSigns es)
 
 formulaIsSAT :: SignTable -> Formula LinearExpr -> Bool
 formulaIsSAT st fm =
@@ -42,5 +47,5 @@ satIntervals st (Or l r) =
 satIntervals st (Not r) =
   intervals st \\ (satIntervals st r)
   
-
-  
+project :: String -> Formula LinearExpr -> Formula LinearExpr
+project varName f = f

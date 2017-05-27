@@ -6,6 +6,8 @@ data Formula a =
   And (Formula a) (Formula a) |
   Or (Formula a) (Formula a) |
   Not (Formula a) |
-  Atom Comparison a
+  Atom Comparison a |
+  T |
+  F
   deriving (Eq, Ord, Show)
 

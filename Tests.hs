@@ -48,3 +48,8 @@ main = hspec $ do
                                  Range (Var "x1") Inf]
                  [[Neg, Pos], [Zero, Pos], [Pos, Pos], [Pos, Zero], [Pos, Neg]] in
          formulaIsSAT st fm `shouldBe` True
+
+  describe "Quantifier elimination" $ do
+      it "Quantifier elimination on 3x + 4 = 0" $ do
+        let fm = Atom EQL (mkLinear [(3, "x")] 4) in
+         project "x" fm `shouldBe` T
