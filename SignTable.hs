@@ -1,8 +1,10 @@
 module SignTable(SignTable,
                  Interval(Point, Range),
                  Val(Var, Inf, NInf),
+                 Sign(Neg, Zero, Pos),
                  mkTable,
-                 numRows, numCols) where
+                 numRows, numCols,
+                 intervalsWithSign) where
 
 import Control.Exception.Base
 import Data.List as L
@@ -67,11 +69,22 @@ mkTable polys intervals sgns = SignTable polys intervals sgns
 -- rootBetween Neg Pos = True
 -- rootBetween _ _ = False
 
--- signAt :: LinearExpr -> Interval -> SignTable -> Sign
--- signAt p i st@(SignTable ps its sgs) =
---   let pInd = fromJust $ elemIndex p ps
---       iInd = fromJust $ elemIndex i its in
---    (sgs !! iInd) !! pInd
+signAt :: LinearExpr -> Interval -> SignTable -> Sign
+signAt p i st@(SignTable ps its sgs) =
+  let pInd = fromJust $ elemIndex p ps
+      iInd = fromJust $ elemIndex i its in
+   (sgs !! iInd) !! pInd
+
+getSignColumn :: Int -> SignTable -> [Sign]
+getSignColumn i (SignTable _ _ signs) =
+  L.map (\signRow -> signRow !! i) signs
+
+intervalsWithSign :: LinearExpr -> [Sign] -> SignTable -> [Interval]
+intervalsWithSign l allowedSigns st@(SignTable ps intervals signs)  =
+  let pInd = fromJust $ elemIndex l ps
+      intervalPSignPairs = L.zip intervals $ getSignColumn pInd st in
+   L.map fst $ filter (\(_, sign) -> elem sign allowedSigns) intervalPSignPairs
+   
 
 updateMatrix :: [[a]] -> a -> (Int, Int) -> [[a]]
 updateMatrix m x (r,c) =

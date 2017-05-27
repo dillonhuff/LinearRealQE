@@ -8,3 +8,4 @@ data Formula a =
   Not (Formula a) |
   Atom Comparison a
   deriving (Eq, Ord, Show)
+

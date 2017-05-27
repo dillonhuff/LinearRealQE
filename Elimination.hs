@@ -1,6 +1,7 @@
 module Elimination where
 
 import Linear
+import Logic
 import SignTable
 
 middleIntervals :: [String] -> [Interval]
@@ -20,3 +21,19 @@ tableForRootOrder :: Order LinearExpr -> SignTable
 tableForRootOrder order =
   let es = extractElems order in
    mkTable es (buildIntervals es) []
+
+
+formulaIsSAT :: SignTable -> Formula LinearExpr -> Bool
+formulaIsSAT st fm =
+  length (satIntervals st fm) > 0
+
+satIntervals st (Atom EQL x) =
+  intervalsWithSign x [Zero] st
+satIntervals st (Atom GREATER x) =
+  intervalsWithSign x [Pos] st
+satIntervals st (Atom LESS x) =
+  intervalsWithSign x [Neg] st
+satIntervals st _ = []
+  
+
+  
