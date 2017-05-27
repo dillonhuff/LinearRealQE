@@ -49,3 +49,19 @@ symRoot :: String -> LinearExpr -> LinearExpr
 symRoot varName linExpr =
   let term = getTerm varName linExpr in
    scalarTimes (-1) $ scalarTimes (1 / (fst term)) $ minus linExpr (mkLinear [term] 0)
+
+data Order a = Value a | Less a (Order a) | Equal a (Order a) deriving (Eq, Ord, Show)
+
+allOrders :: [a] -> [Order a]
+allOrders [] = []
+allOrders [a] = [Value a]
+allOrders as =
+  let perms = permutations as in
+   concatMap buildOrders perms
+
+buildOrders :: [a] -> [Order a]
+buildOrders [] = []
+buildOrders [a] = [Value a]
+buildOrders (a:as) =
+  let ords = buildOrders as in
+   (map (Less a) ords) ++ (map (Equal a) ords)
