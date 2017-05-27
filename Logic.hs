@@ -11,3 +11,8 @@ data Formula a =
   F
   deriving (Eq, Ord, Show)
 
+collectFormulas (And l r) = (collectFormulas l) ++ (collectFormulas r)
+collectFormulas (Or l r) = (collectFormulas l) ++ (collectFormulas r)
+collectFormulas (Not l) = (collectFormulas l)
+collectFormulas (Atom _ l) = [l]
+collectFormulas _ = []

@@ -18,12 +18,12 @@ main = hspec $ do
 
   describe "Sign table construction" $ do
     it "Single expression table has one column" $ do
-      numCols (tableForRootOrder (Value (mkLinear [(1, "x")] 3))) `shouldBe` 1
+      numCols (tableForRootOrder "x" (Value (mkLinear [(1, "x")] 3))) `shouldBe` 1
     it "Single expression table has three rows" $ do
-      numRows (tableForRootOrder (Value (mkLinear [(1, "x")] 3))) `shouldBe` 3
+      numRows (tableForRootOrder "x" (Value (mkLinear [(1, "x")] 3))) `shouldBe` 3
 
     it "Two expression table has five rows" $ do
-      numRows (tableForRootOrder (Less (mkLinear [(-2, "x")] 0) $ Value (mkLinear [(1, "x")] 3))) `shouldBe` 5
+      numRows (tableForRootOrder "x" (Less (mkLinear [(-2, "x")] 0) $ Value (mkLinear [(1, "x")] 3))) `shouldBe` 5
 
     describe "Evaluate formula with sign table" $ do
       it "x = 0 has sat assignment" $ do

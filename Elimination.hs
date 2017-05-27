@@ -1,5 +1,6 @@
 module Elimination where
 
+import Control.Exception.Base
 import Data.List
 
 import Linear
@@ -18,17 +19,33 @@ buildIntervals lx =
       pInf = Range (Var $ last vars) Inf in
    (negInf:(middleIntervals vars)) ++ [pInf]
 
-buildSigns :: [LinearExpr] -> [[Sign]]
-buildSigns es = []
+signRow :: String -> Int -> LinearExpr -> Int -> [Sign]
+signRow varName numIntervals expr i =
+  let t = fst $ getTerm varName expr
+      sg = if t > 0 then Pos else if t < 0 then Neg else Zero
+      nsg = if sg == Pos then Neg else Pos
+      before = replicate (i) nsg
+      after = replicate (numIntervals - i - 1) sg
+      sgRow = before ++ [Zero] ++ after in
+   assert ((length sgRow) == numIntervals) sgRow
+
+buildSigns :: String -> Int -> [LinearExpr] -> [[Sign]]
+buildSigns varName numIntervals es =
+  let rootInds = [1..(length es)] in
+   zipWith (signRow varName numIntervals) es rootInds
 
 flipRowsAndCols :: [[a]] -> [[a]]
 flipRowsAndCols as =
-  if (length $ head as) == 0 then replicate (length as) [] else []
+  if (length $ head as) == 0 then [] else
+    let flippedRow = map head as
+        rest = map tail as in
+     flippedRow:(flipRowsAndCols rest)
 
-tableForRootOrder :: Order LinearExpr -> SignTable
-tableForRootOrder order =
-  let es = extractElems order in
-   mkTable es (buildIntervals es) (flipRowsAndCols $ buildSigns es)
+tableForRootOrder :: String -> Order LinearExpr -> SignTable
+tableForRootOrder varName order =
+  let es = extractElems order
+      ints = buildIntervals es in
+   mkTable es ints (flipRowsAndCols $ buildSigns varName (length ints) es)
 
 formulaIsSAT :: SignTable -> Formula LinearExpr -> Bool
 formulaIsSAT st fm =
@@ -46,6 +63,20 @@ satIntervals st (Or l r) =
   union (satIntervals st l) (satIntervals st r)
 satIntervals st (Not r) =
   intervals st \\ (satIntervals st r)
+
+rootOrderFormula varName order = T
+
+foldAnds :: [Formula a] -> Formula a
+foldAnds [] = T
+foldAnds [a] = a
+foldAnds (a:as) = And a (foldAnds as)
   
+toFormula varName f ord st =
+  if formulaIsSAT st f then rootOrderFormula varName ord else F
+
 project :: String -> Formula LinearExpr -> Formula LinearExpr
-project varName f = f
+project varName f =
+  let exprs = nub $ collectFormulas f
+      orders = buildOrders exprs
+      sts = map (\ord -> (ord, tableForRootOrder varName ord)) orders in
+   foldAnds $ map (\(ord, st) -> toFormula varName f ord st) sts
