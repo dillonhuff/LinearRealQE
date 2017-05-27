@@ -3,9 +3,18 @@ module Linear where
 import Data.Maybe
 import Data.List
 
-data LinearExpr = LinearExpr [(Rational, String)] Rational
-                  deriving (Eq, Ord, Show)
+import PrettyPrint
 
+data LinearExpr = LinearExpr [(Rational, String)] Rational
+                  deriving (Eq, Ord)
+
+instance Show LinearExpr where
+  show lx = printLinearExpr lx
+
+showTerm (a, b) = show a ++ "*" ++ b
+
+printLinearExpr (LinearExpr lx 0) = sumList "+" showTerm lx
+printLinearExpr (LinearExpr lx c) = sumList "+" showTerm lx ++ " + " ++ show c
 
 sumCoeffs :: [(Rational, String)] -> (Rational, String)
 sumCoeffs [] = error "sumCoeffs empty"
