@@ -36,3 +36,15 @@ main = hspec $ do
             fm = And (Atom EQL x) (Atom GREATER x)
             st = mkTable [x] [Range NInf (Var "x0"), Point $ Var "x0", Range (Var "x0") Inf] [[Neg], [Zero], [Pos]] in
          formulaIsSAT st fm `shouldBe` False
+
+      it "x = 0 and -y + 2 > 0 has sat assignment" $ do
+        let x = mkLinear [(1, "x")] 0
+            y = mkLinear [(-1, "y")] 2
+            fm = And (Atom EQL x) (Atom GREATER y)
+            st = mkTable [x, y] [Range NInf (Var "x0"),
+                                 Point $ Var "x0",
+                                 Range (Var "x0") (Var "x1"),
+                                 Point $ Var "x1",
+                                 Range (Var "x1") Inf]
+                 [[Neg, Pos], [Zero, Pos], [Pos, Pos], [Pos, Zero], [Pos, Neg]] in
+         formulaIsSAT st fm `shouldBe` True

@@ -4,7 +4,7 @@ module SignTable(SignTable,
                  Sign(Neg, Zero, Pos),
                  mkTable,
                  numRows, numCols,
-                 intervalsWithSign) where
+                 intervals, intervalsWithSign) where
 
 import Control.Exception.Base
 import Data.List as L

@@ -1,5 +1,7 @@
 module Elimination where
 
+import Data.List
+
 import Linear
 import Logic
 import SignTable
@@ -33,7 +35,12 @@ satIntervals st (Atom GREATER x) =
   intervalsWithSign x [Pos] st
 satIntervals st (Atom LESS x) =
   intervalsWithSign x [Neg] st
-satIntervals st _ = []
+satIntervals st (And l r) =
+  intersect (satIntervals st l) (satIntervals st r)
+satIntervals st (Or l r) =
+  union (satIntervals st l) (satIntervals st r)
+satIntervals st (Not r) =
+  intervals st \\ (satIntervals st r)
   
 
   
