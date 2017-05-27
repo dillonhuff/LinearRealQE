@@ -2,6 +2,7 @@ module Elimination where
 
 import Control.Exception.Base
 import Data.List
+import Data.Maybe
 
 import Linear
 import Logic
@@ -29,10 +30,19 @@ signRow varName numIntervals expr i =
       sgRow = before ++ [Zero] ++ after in
    assert ((length sgRow) == numIntervals) sgRow
 
-buildSigns :: String -> Int -> [LinearExpr] -> [[Sign]]
-buildSigns varName numIntervals es =
-  let rootInds = [1..(length es)] in
-   zipWith (signRow varName numIntervals) es rootInds
+findRootIndex :: LinearExpr -> [[LinearExpr]] -> Int
+findRootIndex l ord =
+  fromJust $ findIndex (\group -> elem l group) ord
+
+buildSigns :: String -> Order LinearExpr -> [Interval] -> [[Sign]]
+buildSigns varName order intervals =
+  let es = extractElems order
+      lOrd = linearizeOrder order
+      rootInds = map (\p -> findRootIndex p lOrd) es in
+   zipWith (signRow varName (length intervals)) es rootInds
+
+                                     -- let rootInds = [1..(length es)] in
+  --  zipWith (signRow varName numIntervals) es rootInds
 
 flipRowsAndCols :: [[a]] -> [[a]]
 flipRowsAndCols as =
@@ -44,8 +54,9 @@ flipRowsAndCols as =
 tableForRootOrder :: String -> Order LinearExpr -> SignTable
 tableForRootOrder varName order =
   let es = extractElems order
-      ints = buildIntervals es in
-   mkTable es ints (flipRowsAndCols $ buildSigns varName (length ints) es)
+      ints = buildIntervals es
+      signs = flipRowsAndCols $ buildSigns varName order ints in
+   mkTable es ints signs
 
 formulaIsSAT :: SignTable -> Formula LinearExpr -> Bool
 formulaIsSAT st fm =
@@ -75,7 +86,6 @@ rootOrderFormula varName (Less a or) =
 rootOrderFormula varName (Equal a or) =
   And (Atom EQL (minus (symRoot varName a) (symRoot varName (lastVal or)))) (rootOrderFormula varName or)
   
-
 foldAnds :: [Formula a] -> Formula a
 foldAnds [] = T
 foldAnds [a] = a

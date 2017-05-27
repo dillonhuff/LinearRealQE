@@ -1,6 +1,8 @@
 module Tests(main) where
 
+import Data.Ratio
 import Test.Hspec
+
 
 import Elimination
 import Linear
@@ -82,4 +84,4 @@ main = hspec $ do
         let c1 = mkLinear [(3, "x"), (4, "y")] (-7)
             c2 = mkLinear [(2, "x"), (-1, "y")] 3
             fm = And (Atom LESS c1) (Or (Atom GREATER c2) (Atom EQL c2)) in
-         project "x" fm `shouldBe` (Atom LESS $ mkLinear [(11, "y")] (-23))
+         project "x" fm `shouldBe` (Atom LESS $ mkLinear [(11 % 6, "y")] (-23 % 6))

@@ -78,3 +78,11 @@ isConstant (LinearExpr [] c) = True
 isConstant _ = False
 
 constant (LinearExpr _ c) = c
+
+
+linearizeOrder :: Order a -> [[a]]
+linearizeOrder (Value a) = [[a]]
+linearizeOrder (Less a ord) = ([a]):(linearizeOrder ord)
+linearizeOrder (Equal a ord) =
+  let lo = linearizeOrder ord in
+   (a:(head lo)):(tail lo)
