@@ -65,3 +65,7 @@ buildOrders [a] = [Value a]
 buildOrders (a:as) =
   let ords = buildOrders as in
    (map (Less a) ords) ++ (map (Equal a) ords)
+
+extractElems (Value a) = [a]
+extractElems (Equal a or) = a:(extractElems or)
+extractElems (Less a or) = a:(extractElems or)
