@@ -17,7 +17,8 @@ getTerm varName (LinearExpr terms _) =
   fromJust $ find (\(a, b) -> b == varName) terms
 
 minus :: LinearExpr -> LinearExpr -> LinearExpr
-minus a b = error "sub"
+minus (LinearExpr a c) (LinearExpr q r) =
+  error "sub"
 
 symRoot :: String -> LinearExpr -> LinearExpr
 symRoot varName linExpr =
