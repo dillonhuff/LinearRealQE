@@ -5,7 +5,8 @@ import SignTable
 
 middleIntervals :: [String] -> [Interval]
 middleIntervals [x] = [Point $ Var x]
-middleIntervals (x:xs) = []
+middleIntervals (x:y:xs) =
+  [Point $ Var x, Range (Var x) (Var y)] ++ (middleIntervals (y:xs))
 
 buildIntervals :: [LinearExpr] -> [Interval]
 buildIntervals lx =

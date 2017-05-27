@@ -20,4 +20,7 @@ main = hspec $ do
       numCols (tableForRootOrder (Value (mkLinear [(1, "x")] 3))) `shouldBe` 1
     it "Single expression table has three rows" $ do
       numRows (tableForRootOrder (Value (mkLinear [(1, "x")] 3))) `shouldBe` 3
+
+    it "Two expression table has five rows" $ do
+      numRows (tableForRootOrder (Less (mkLinear [(-2, "x")] 0) $ Value (mkLinear [(1, "x")] 3))) `shouldBe` 5
       
