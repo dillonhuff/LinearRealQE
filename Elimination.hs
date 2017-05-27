@@ -13,9 +13,10 @@ middleIntervals [x] = [Point $ Var x]
 middleIntervals (x:y:xs) =
   [Point $ Var x, Range (Var x) (Var y)] ++ (middleIntervals (y:xs))
 
-buildIntervals :: [LinearExpr] -> [Interval]
-buildIntervals lx =
-  let vars = map (\v -> "x" ++ show v) $ [1..(length lx)]
+--buildIntervals :: [LinearExpr] -> [Interval]
+buildIntervals :: Order LinearExpr -> [Interval]
+buildIntervals ord =
+  let vars = map (\v -> "x" ++ show v) $ [1..(length $ linearizeOrder ord)]
       negInf = Range NInf (Var $ head vars)
       pInf = Range (Var $ last vars) Inf in
    (negInf:(middleIntervals vars)) ++ [pInf]
@@ -54,7 +55,7 @@ flipRowsAndCols as =
 tableForRootOrder :: String -> Order LinearExpr -> SignTable
 tableForRootOrder varName order =
   let es = extractElems order
-      ints = buildIntervals es
+      ints = buildIntervals order
       signs = flipRowsAndCols $ buildSigns varName order ints in
    mkTable es ints signs
 
