@@ -77,3 +77,9 @@ main = hspec $ do
             x2 = (mkLinear [(3, "x")] 7)
             fm = And (Atom EQL x) (Atom LESS x2) in
          project "x" fm `shouldBe` F
+
+      it "Quantifier elimination on " $ do
+        let c1 = mkLinear [(3, "x"), (4, "y")] (-7)
+            c2 = mkLinear [(2, "x"), (-1, "y")] 3
+            fm = And (Atom LESS c1) (Or (Atom GREATER c2) (Atom EQL c2)) in
+         project "x" fm `shouldBe` (Atom LESS $ mkLinear [(11, "y")] (-23))

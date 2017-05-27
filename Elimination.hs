@@ -97,6 +97,10 @@ evaluateCmp comp rational =
 
 simplifyFm :: Formula LinearExpr -> Formula LinearExpr
 simplifyFm (Or F F) = F
+simplifyFm (Or F a) = a
+simplifyFm (Or a F) = a
+simplifyFm (Or T _) = T
+simplifyFm (Or _ T) = T
 simplifyFm (And T T) = T
 simplifyFm (And a T) = a
 simplifyFm (And T a) = a
