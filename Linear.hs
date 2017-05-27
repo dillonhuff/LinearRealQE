@@ -73,3 +73,8 @@ extractElems (Less a or) = a:(extractElems or)
 lastVal (Value a) = a
 lastVal (Less a _) = a
 lastVal (Equal a _) = a
+
+isConstant (LinearExpr [] c) = True
+isConstant _ = False
+
+constant (LinearExpr _ c) = c

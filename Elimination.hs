@@ -89,8 +89,27 @@ foldOrs (a:as) = Or a (foldOrs as)
 toFormula varName f ord st =
   if formulaIsSAT st f then rootOrderFormula varName ord else F
 
+evaluateCmp comp rational =
+  if comp == EQL
+  then (if rational == 0 then T else F)
+  else if comp == LESS then (if rational < 0 then T else F)
+       else (if rational > 0 then T else F)
+
 simplifyFm :: Formula LinearExpr -> Formula LinearExpr
+simplifyFm (Or F F) = F
+simplifyFm (And T T) = T
+simplifyFm (And a T) = a
+simplifyFm (And T a) = a
+simplifyFm (And F _) = F
+simplifyFm (And _ F) = F
+simplifyFm (Atom cmp e) =
+  if isConstant e then evaluateCmp cmp (constant e) else Atom cmp e
 simplifyFm fm = fm
+
+simplifyFmRec (Or a b) = simplifyFm $ Or (simplifyFmRec a) (simplifyFmRec b)
+simplifyFmRec (And a b) = simplifyFm $ And (simplifyFmRec a) (simplifyFmRec b)
+simplifyFmRec (Not a) = simplifyFm $ Not (simplifyFmRec a)
+simplifyFmRec a = simplifyFm a
 
 project :: String -> Formula LinearExpr -> Formula LinearExpr
 project varName f =
@@ -98,4 +117,4 @@ project varName f =
       orders = allOrders exprs
       sts = map (\ord -> (ord, tableForRootOrder varName ord)) orders in
    --error $ show $ map (\(ord, st) -> toFormula varName f ord st) sts
-   simplifyFm $ foldOrs $ map (\(ord, st) -> toFormula varName f ord st) sts
+   simplifyFmRec $ foldOrs $ map (\(ord, st) -> toFormula varName f ord st) sts
