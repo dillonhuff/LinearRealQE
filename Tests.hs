@@ -49,7 +49,31 @@ main = hspec $ do
                  [[Neg, Pos], [Zero, Pos], [Pos, Pos], [Pos, Zero], [Pos, Neg]] in
          formulaIsSAT st fm `shouldBe` True
 
+  describe "rootOrderFormula" $ do
+    it "rootFormula for (3x + 4 < 3x + 7)" $ do
+        let x = (mkLinear [(3, "x")] 4)
+            x2 = (mkLinear [(3, "x")] 7)
+            ord = Less x (Value x2) in
+         rootOrderFormula "x" ord `shouldBe` (Atom LESS $ mkLinear [] 1)
+
+    it "rootFormula for (3x + 7 < 3x + 4)" $ do
+        let x = (mkLinear [(3, "x")] 4)
+            x2 = (mkLinear [(3, "x")] 7)
+            ord = Less x2 (Value x) in
+         rootOrderFormula "x" ord `shouldBe` (Atom LESS $ mkLinear [] (-1))
+
   describe "Quantifier elimination" $ do
       it "Quantifier elimination on 3x + 4 = 0" $ do
         let fm = Atom EQL (mkLinear [(3, "x")] 4) in
          project "x" fm `shouldBe` T
+
+      it "Quantifier elimination on 3x + 4 > 0 and 3x + 4 < 0" $ do
+        let x = (mkLinear [(3, "x")] 4)
+            fm = And (Atom EQL x) (Atom LESS x) in
+         project "x" fm `shouldBe` F
+
+      it "Quantifier elimination on 3x + 4 > 0 and 3x + 7 < 0" $ do
+        let x = (mkLinear [(3, "x")] 4)
+            x2 = (mkLinear [(3, "x")] 7)
+            fm = And (Atom EQL x) (Atom LESS x2) in
+         project "x" fm `shouldBe` F

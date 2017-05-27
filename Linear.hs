@@ -39,7 +39,7 @@ getTerm varName (LinearExpr terms _) =
    
 plus :: LinearExpr -> LinearExpr -> LinearExpr
 plus (LinearExpr a c) (LinearExpr q r) =
-  let newC = c - r
+  let newC = c + r
       newTerms = a ++ q in
    mkLinear newTerms newC
 
@@ -69,3 +69,7 @@ buildOrders (a:as) =
 extractElems (Value a) = [a]
 extractElems (Equal a or) = a:(extractElems or)
 extractElems (Less a or) = a:(extractElems or)
+
+lastVal (Value a) = a
+lastVal (Less a _) = a
+lastVal (Equal a _) = a

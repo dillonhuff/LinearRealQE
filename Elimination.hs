@@ -64,19 +64,38 @@ satIntervals st (Or l r) =
 satIntervals st (Not r) =
   intervals st \\ (satIntervals st r)
 
-rootOrderFormula varName order = T
+rootOrderFormula :: String -> Order LinearExpr -> Formula LinearExpr
+rootOrderFormula varName (Value a) = T
+rootOrderFormula varName (Less a (Value b)) =
+  Atom LESS (minus (symRoot varName a) (symRoot varName b))
+rootOrderFormula varName (Equal a (Value b)) =
+  Atom EQL (minus (symRoot varName a) (symRoot varName b))
+rootOrderFormula varName (Less a or) =
+  And (Atom LESS (minus (symRoot varName a) (symRoot varName (lastVal or)))) (rootOrderFormula varName or)
+rootOrderFormula varName (Equal a or) =
+  And (Atom EQL (minus (symRoot varName a) (symRoot varName (lastVal or)))) (rootOrderFormula varName or)
+  
 
 foldAnds :: [Formula a] -> Formula a
 foldAnds [] = T
 foldAnds [a] = a
 foldAnds (a:as) = And a (foldAnds as)
-  
+
+foldOrs :: [Formula a] -> Formula a
+foldOrs [] = T
+foldOrs [a] = a
+foldOrs (a:as) = Or a (foldOrs as)
+
 toFormula varName f ord st =
   if formulaIsSAT st f then rootOrderFormula varName ord else F
+
+simplifyFm :: Formula LinearExpr -> Formula LinearExpr
+simplifyFm fm = fm
 
 project :: String -> Formula LinearExpr -> Formula LinearExpr
 project varName f =
   let exprs = nub $ collectFormulas f
-      orders = buildOrders exprs
+      orders = allOrders exprs
       sts = map (\ord -> (ord, tableForRootOrder varName ord)) orders in
-   foldAnds $ map (\(ord, st) -> toFormula varName f ord st) sts
+   --error $ show $ map (\(ord, st) -> toFormula varName f ord st) sts
+   simplifyFm $ foldOrs $ map (\(ord, st) -> toFormula varName f ord st) sts
