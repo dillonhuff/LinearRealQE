@@ -16,17 +16,17 @@ main = hspec $ do
       length (allOrders [1]) `shouldBe` 1
 
     -- Correct this later
-    it "3 possible orders of 2 objects" $ do
-      length (allOrders [1, 2]) `shouldBe` 3
+    it "4 possible orders of 2 objects" $ do
+      length (allOrders [1, 2]) `shouldBe` 4
 
   describe "Sign table construction" $ do
     it "Single expression table has one column" $ do
-      numCols (tableForRootOrder "x" (Value (mkLinear [(1, "x")] 3))) `shouldBe` 1
+      numCols (tableForRootOrder "x" [[mkLinear [(1, "x")] 3]]) `shouldBe` 1
     it "Single expression table has three rows" $ do
-      numRows (tableForRootOrder "x" (Value (mkLinear [(1, "x")] 3))) `shouldBe` 3
+      numRows (tableForRootOrder "x" [[mkLinear [(1, "x")] 3]]) `shouldBe` 3
 
     it "Two expression table has five rows" $ do
-      numRows (tableForRootOrder "x" (Less (mkLinear [(-2, "x")] 0) $ Value (mkLinear [(1, "x")] 3))) `shouldBe` 5
+      numRows (tableForRootOrder "x" [[mkLinear [(-2, "x")] 0], [mkLinear [(1, "x")] 3]]) `shouldBe` 5
 
     describe "Evaluate formula with sign table" $ do
       it "x = 0 has sat assignment" $ do
@@ -56,13 +56,13 @@ main = hspec $ do
     it "rootFormula for (3x + 4 < 3x + 7)" $ do
         let x = (mkLinear [(3, "x")] 4)
             x2 = (mkLinear [(3, "x")] 7)
-            ord = Less x (Value x2) in
+            ord = [[x], [x2]] in
          rootOrderFormula "x" ord `shouldBe` (Atom LESS $ mkLinear [] 1)
 
     it "rootFormula for (3x + 7 < 3x + 4)" $ do
         let x = (mkLinear [(3, "x")] 4)
             x2 = (mkLinear [(3, "x")] 7)
-            ord = Less x2 (Value x) in
+            ord = [[x2], [x]] in
          rootOrderFormula "x" ord `shouldBe` (Atom LESS $ mkLinear [] (-1))
 
   describe "Quantifier elimination" $ do

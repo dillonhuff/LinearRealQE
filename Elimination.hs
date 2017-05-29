@@ -14,9 +14,9 @@ middleIntervals (x:y:xs) =
   [Point $ Var x, Range (Var x) (Var y)] ++ (middleIntervals (y:xs))
 
 --buildIntervals :: [LinearExpr] -> [Interval]
-buildIntervals :: Order LinearExpr -> [Interval]
+buildIntervals :: LinOrder LinearExpr -> [Interval]
 buildIntervals ord =
-  let vars = map (\v -> "x" ++ show v) $ [1..(length $ linearizeOrder ord)]
+  let vars = map (\v -> "x" ++ show v) $ [1..(length ord)] --[1..(length $ linearizeOrder ord)]
       negInf = Range NInf (Var $ head vars)
       pInf = Range (Var $ last vars) Inf in
    (negInf:(middleIntervals vars)) ++ [pInf]
@@ -35,11 +35,10 @@ findRootIndex :: LinearExpr -> [[LinearExpr]] -> Int
 findRootIndex l ord =
   fromJust $ findIndex (\group -> elem l group) ord
 
-buildSigns :: String -> Order LinearExpr -> [Interval] -> [[Sign]]
+buildSigns :: String -> LinOrder LinearExpr -> [Interval] -> [[Sign]]
 buildSigns varName order intervals =
   let es = extractElems order
-      lOrd = linearizeOrder order
-      rootInds = map (\p -> findRootIndex p lOrd) es in
+      rootInds = map (\p -> findRootIndex p order) es in
    zipWith (signRow varName (length intervals)) es rootInds
 
                                      -- let rootInds = [1..(length es)] in
@@ -52,7 +51,7 @@ flipRowsAndCols as =
         rest = map tail as in
      flippedRow:(flipRowsAndCols rest)
 
-tableForRootOrder :: String -> Order LinearExpr -> SignTable
+tableForRootOrder :: String -> LinOrder LinearExpr -> SignTable
 tableForRootOrder varName order =
   let es = extractElems order
       ints = buildIntervals order
@@ -89,17 +88,22 @@ satIntervalsWithPolys p st (Or l r) =
 satIntervalsWithPolys p st (Not r) =
   intervals st \\ (satIntervalsWithPolys p st r)
 
-rootOrderFormula :: String -> Order LinearExpr -> Formula LinearExpr
-rootOrderFormula varName (Value a) = T
-rootOrderFormula varName (Less a (Value b)) =
+rootOrdForm :: String -> Order LinearExpr -> Formula LinearExpr
+rootOrdForm varName (Value a) = T
+rootOrdForm varName (Less a (Value b)) =
   Atom LESS (minus (symRoot varName a) (symRoot varName b))
-rootOrderFormula varName (Equal a (Value b)) =
+rootOrdForm varName (Equal a (Value b)) =
   Atom EQL (minus (symRoot varName a) (symRoot varName b))
-rootOrderFormula varName (Less a or) =
-  And (Atom LESS (minus (symRoot varName a) (symRoot varName (lastVal or)))) (rootOrderFormula varName or)
-rootOrderFormula varName (Equal a or) =
-  And (Atom EQL (minus (symRoot varName a) (symRoot varName (lastVal or)))) (rootOrderFormula varName or)
-  
+rootOrdForm varName (Less a or) =
+  And (Atom LESS (minus (symRoot varName a) (symRoot varName (lastVal or)))) (rootOrdForm varName or)
+rootOrdForm varName (Equal a or) =
+  And (Atom EQL (minus (symRoot varName a) (symRoot varName (lastVal or)))) (rootOrdForm varName or)
+
+rootOrderFormula :: String -> LinOrder LinearExpr -> Formula LinearExpr
+rootOrderFormula var ord = T
+  -- let lOrd = toOrderData ord in
+  --  rootOrdForm var lOrd
+
 foldAnds :: [Formula a] -> Formula a
 foldAnds [] = T
 foldAnds [a] = a

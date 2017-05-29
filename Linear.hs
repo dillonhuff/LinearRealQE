@@ -53,12 +53,14 @@ symRoot varName linExpr =
 
 data Order a = Value a | Less a (Order a) | Equal a (Order a) deriving (Eq, Ord, Show)
 
-allOrders :: [a] -> [Order a]
+allOrders :: [a] -> [LinOrder a]
 allOrders [] = []
-allOrders [a] = [Value a]
-allOrders as =
-  let perms = permutations as in
-   concatMap buildOrders perms
+allOrders (a:as) = updateOrders a $ allOrders as
+
+-- allOrders [a] = [Value a]
+-- allOrders as =
+--   let perms = permutations as in
+--    concatMap buildOrders perms
 
 buildOrders :: [a] -> [Order a]
 buildOrders [] = []
@@ -67,9 +69,10 @@ buildOrders (a:as) =
   let ords = buildOrders as in
    (map (Less a) ords) ++ (map (Equal a) ords)
 
-extractElems (Value a) = [a]
-extractElems (Equal a or) = a:(extractElems or)
-extractElems (Less a or) = a:(extractElems or)
+extractElems as = concat as
+-- extractElems (Value a) = [a]
+-- extractElems (Equal a or) = a:(extractElems or)
+-- extractElems (Less a or) = a:(extractElems or)
 
 lastVal (Value a) = a
 lastVal (Less a _) = a
@@ -126,3 +129,15 @@ updateOrders a [] = [singleOrder a]
 updateOrders a orders =
   concatMap (generateMiddleOrders a) orders
 --  let first = [[a], as]
+
+-- finishedEqGroup :: [a] -> Order a
+-- finishedEqGroup [a] = Value a
+-- finishedEqGroup (a:as) = Equal a $ finishedEqGroup as
+
+-- partialEqGroup :: [a] -> Order a -> Order a
+-- partialEqGroup [a] = Less a
+-- partialEqGroup (a:as) = \o -> Less Equal a $ partialEqGroup as--Equal a $ partialEqGroup as
+
+-- toOrderData :: [[a]] -> Order a
+-- toOrderData [eqGroup] = (finishedEqGroup eqGroup)
+-- toOrderData (a:as) = (partialEqGroup a) $ toOrderData as -- Value $ head a
