@@ -76,6 +76,19 @@ satIntervals st (Or l r) =
 satIntervals st (Not r) =
   intervals st \\ (satIntervals st r)
 
+satIntervalsWithPolys p st (Atom EQL x) =
+  if elem x p then intervalsWithSign x [Zero] st else intervals st
+satIntervalsWithPolys p st (Atom GREATER x) =
+  if elem x p then intervalsWithSign x [Pos] st else intervals st
+satIntervalsWithPolys p st (Atom LESS x) =
+  if elem x p then intervalsWithSign x [Neg] st else intervals st
+satIntervalsWithPolys p st (And l r) =
+  intersect (satIntervalsWithPolys p st l) (satIntervalsWithPolys p st r)
+satIntervalsWithPolys p st (Or l r) =
+  union (satIntervalsWithPolys p st l) (satIntervalsWithPolys p st r)
+satIntervalsWithPolys p st (Not r) =
+  intervals st \\ (satIntervalsWithPolys p st r)
+
 rootOrderFormula :: String -> Order LinearExpr -> Formula LinearExpr
 rootOrderFormula varName (Value a) = T
 rootOrderFormula varName (Less a (Value b)) =

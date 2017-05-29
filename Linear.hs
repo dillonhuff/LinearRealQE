@@ -79,10 +79,29 @@ isConstant _ = False
 
 constant (LinearExpr _ c) = c
 
-
 linearizeOrder :: Order a -> [[a]]
 linearizeOrder (Value a) = [[a]]
 linearizeOrder (Less a ord) = ([a]):(linearizeOrder ord)
 linearizeOrder (Equal a ord) =
   let lo = linearizeOrder ord in
    (a:(head lo)):(tail lo)
+
+type LinOrder a = [[a]]
+
+singleOrder a = [[a]]
+
+generateOrders :: [a] -> [LinOrder a]
+generateOrders [a] = [singleOrder a]
+generateOrders (a:as) = concatMap (insertOrders a) $ generateOrders as
+
+insertOrders :: a -> LinOrder a -> [LinOrder a]
+insertOrders a [] = [singleOrder a]
+insertOrders a order =
+  let first = [a]:order
+      last = order ++ [[a]]
+      middle = generateMiddleOrders a order in
+   (first:middle) ++ [last]
+
+generateMiddleOrders a order =
+  []
+--  let first = [[a], as]
