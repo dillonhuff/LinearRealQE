@@ -15,8 +15,9 @@ main = hspec $ do
     it "There is possible one order of one object" $ do
       length (allOrders [1]) `shouldBe` 1
 
-    it "4 possible orders of 2 objects" $ do
-      length (allOrders [1, 2]) `shouldBe` 4
+    -- Correct this later
+    it "3 possible orders of 2 objects" $ do
+      length (allOrders [1, 2]) `shouldBe` 3
 
   describe "Sign table construction" $ do
     it "Single expression table has one column" $ do

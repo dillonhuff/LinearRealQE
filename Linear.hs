@@ -105,14 +105,13 @@ singleOrder a = [[a]]
 
 appendToElem :: Int -> a -> LinOrder a -> LinOrder a
 appendToElem i a l =
-  updateMatrix l a (i, 0)
+  insertMatrix l a (i, 0)
 
 innerOrders :: a -> LinOrder a -> [LinOrder a]
 innerOrders a order =
   let newElem = [[a]]
       inds = [1..(length order)] in
-   map (\i -> updateList order newElem i) inds
-      
+   map (\i -> insertList order newElem i) inds
 
 generateMiddleOrders :: a -> LinOrder a -> [LinOrder a]
 generateMiddleOrders a order =
@@ -122,4 +121,8 @@ generateMiddleOrders a order =
       innerOrds = innerOrders a order in
    (minOrder:sameOrders) ++ innerOrds
 
+updateOrders :: a -> [LinOrder a] -> [LinOrder a]
+updateOrders a [] = [singleOrder a]
+updateOrders a orders =
+  concatMap (generateMiddleOrders a) orders
 --  let first = [[a], as]
