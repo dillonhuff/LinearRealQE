@@ -90,18 +90,23 @@ type LinOrder a = [[a]]
 
 singleOrder a = [[a]]
 
-generateOrders :: [a] -> [LinOrder a]
-generateOrders [a] = [singleOrder a]
-generateOrders (a:as) = concatMap (insertOrders a) $ generateOrders as
+-- generateOrders :: [a] -> [LinOrder a]
+-- generateOrders [a] = [singleOrder a]
+-- generateOrders (a:as) = concatMap (insertOrders a) $ generateOrders as
 
-insertOrders :: a -> LinOrder a -> [LinOrder a]
-insertOrders a [] = [singleOrder a]
-insertOrders a order =
-  let first = [a]:order
-      last = order ++ [[a]]
-      middle = generateMiddleOrders a order in
-   (first:middle) ++ [last]
+-- insertOrders :: a -> LinOrder a -> [LinOrder a]
+-- insertOrders a [] = [singleOrder a]
+-- insertOrders a order =
+--   let first = [a]:order
+--       last = order ++ [[a]]
+--       middle = generateMiddleOrders a order in
+--    (first:middle) ++ [last]
 
-generateMiddleOrders a order =
-  []
+-- generateMiddleOrders :: a -> LinOrder a -> [LinOrder a]
+-- generateMiddleOrders a [] =
+--   [singleOrder a]
+-- generateMiddleOrders a order =
+--   let sameOrders = map (\eqClass -> a:eqClass) order in
+--    sameOrders
+
 --  let first = [[a], as]
