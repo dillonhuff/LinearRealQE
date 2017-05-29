@@ -11,6 +11,7 @@ import Data.List as L
 import Data.Maybe
 
 import Linear
+import Utils
 
 data Val = Var String | Inf | NInf deriving (Eq, Ord, Show)
 
@@ -85,16 +86,6 @@ intervalsWithSign l allowedSigns st@(SignTable ps intervals signs)  =
       intervalPSignPairs = L.zip intervals $ getSignColumn pInd st in
    L.map fst $ filter (\(_, sign) -> elem sign allowedSigns) intervalPSignPairs
    
-
-updateMatrix :: [[a]] -> a -> (Int, Int) -> [[a]]
-updateMatrix m x (r,c) =
-  take r m ++
-  [take c (m !! r) ++ [x] ++ drop (c + 1) (m !! r)] ++
-  drop (r + 1) m
-
-updateList m x c =
-  (take c m) ++ x ++ (drop (c + 1) m)
-  
 setValue :: Int -> Int -> a -> [[a]] -> [[a]]
 setValue col row newVal old =
   updateMatrix old newVal (row, col)

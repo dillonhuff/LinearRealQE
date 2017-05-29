@@ -4,6 +4,7 @@ import Data.Maybe
 import Data.List
 
 import PrettyPrint
+import Utils
 
 data LinearExpr = LinearExpr [(Rational, String)] Rational
                   deriving (Eq, Ord)
@@ -102,11 +103,23 @@ singleOrder a = [[a]]
 --       middle = generateMiddleOrders a order in
 --    (first:middle) ++ [last]
 
--- generateMiddleOrders :: a -> LinOrder a -> [LinOrder a]
--- generateMiddleOrders a [] =
---   [singleOrder a]
--- generateMiddleOrders a order =
---   let sameOrders = map (\eqClass -> a:eqClass) order in
---    sameOrders
+appendToElem :: Int -> a -> LinOrder a -> LinOrder a
+appendToElem i a l =
+  updateMatrix l a (i, 0)
+
+innerOrders :: a -> LinOrder a -> [LinOrder a]
+innerOrders a order =
+  let newElem = [[a]]
+      inds = [1..(length order)] in
+   map (\i -> updateList order newElem i) inds
+      
+
+generateMiddleOrders :: a -> LinOrder a -> [LinOrder a]
+generateMiddleOrders a order =
+  let inds = [0..((length order) - 1)]
+      sameOrders = map (\i -> appendToElem i a order) inds
+      minOrder = [a]:order
+      innerOrds = innerOrders a order in
+   (minOrder:sameOrders) ++ innerOrds
 
 --  let first = [[a], as]
