@@ -33,7 +33,16 @@ buildFRTestPoints varName fs =
    nub $ symRoots ++ midPoints ++ negInfPoints ++ posInfPoints
 
 ferranteRackoff :: String -> Formula LinearExpr -> Formula LinearExpr
+ferranteRackoff s (Or a b) = Or (ferranteRackoff s a) (ferranteRackoff s b)
 ferranteRackoff s f =
   let fs = nub $ collectFormulas f
       testPoints = buildFRTestPoints s fs in
    simplifyFmRec $ foldOrs $ map (\a -> substituteForVar s a f) testPoints
+
+c1 = mkLinear [(3, "x"), (4, "y")] (-7)
+c2 = mkLinear [(2, "x"), (-1, "y")] 3
+fm = And (Atom LESS c1) (Or (Atom GREATER c2) (Atom EQL c2))
+
+c31 = mkLinear [(3, "x"), (4, "y"), (-7, "z")] (-7)
+c32 = mkLinear [(2, "x"), (-1, "y"), (8, "z")] 3
+fm2 = Or (Atom EQL c31) (And (Atom LESS c31) (Or (Atom GREATER c2) (Atom EQL c32)))
